@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Portal — Gwalior Hotels</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root, [data-theme="light"] {
+            --bg: #F5F9FF;
+            --surface: #FFFFFF;
+            --border: #DBEAFE;
+            --shadow: 0 4px 12px rgba(2, 132, 199, 0.06);
+            --hero-bg: #E0F2FE;
+            --hero-heading: #0C4A6E;
+            --text-secondary: #475569;
+            --accent: #0284C7;
+            --accent-hover: #0369A1;
+            --btn-text: #FFFFFF;
+            --card-title: #0F172A;
+            --switch-track: #BAE6FD;
+            --switch-thumb: #0284C7;
+            --text-primary: #0F172A;
+        }
+        [data-theme="dark"] {
+            --bg: #071110;
+            --surface: #0F1F1D;
+            --border: #1A3330;
+            --shadow: 0 4px 12px rgba(45, 212, 191, 0.08);
+            --hero-bg: #112A27;
+            --hero-heading: #F0FDFA;
+            --text-secondary: #99F6E4;
+            --accent: #2DD4BF;
+            --accent-hover: #5EEAD4;
+            --btn-text: #042F2E;
+            --card-title: #F0FDFA;
+            --switch-track: #1A3330;
+            --switch-thumb: #2DD4BF;
+            --text-primary: #F0FDFA;
+        }
+        * { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
+        body { background: var(--bg); color: var(--text-primary); }
+        .navbar, .card, .table-container, .kpi-card { background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); }
+        .hero h1 { color: var(--hero-heading); }
+        .text-secondary { color: var(--text-secondary); }
+        .btn-primary { background: var(--accent); color: var(--btn-text); }
+        .btn-primary:hover { background: var(--accent-hover); }
+        /* Theme Toggle */
+        .theme-toggle { position: relative; display: inline-block; }
+        .theme-toggle input { opacity: 0; width: 0; height: 0; }
+        .switch {
+            display: flex; align-items: center; justify-content: space-between;
+            width: 64px; height: 32px; background: var(--switch-track);
+            border-radius: 9999px; padding: 4px; cursor: pointer; position: relative;
+            border: 1px solid var(--border);
+        }
+        .switch .icon { font-size: 14px; z-index: 1; user-select: none; }
+        .switch .thumb {
+            position: absolute; width: 24px; height: 24px; background: var(--switch-thumb);
+            border-radius: 50%; left: 4px; transition: transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input:checked + .switch .thumb { transform: translateX(32px); }
+        input:checked + .switch .sun { opacity: 0.4; }
+        input:not(:checked) + .switch .moon { opacity: 0.4; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { color: var(--hero-heading); font-weight: 600; }
+        tr:hover { background: var(--hero-bg); }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navbar -->
+    <nav class="navbar sticky top-0 z-50 px-6 py-4 flex justify-between items-center">
+        <a href="/" class="text-xl font-bold" style="color: var(--hero-heading);">← Customer Site</a>
+        <div class="flex items-center gap-6">
+            <span class="text-sm font-medium" style="color: var(--accent);">Staff Portal — {{ session.staff_name or 'Admin' }}</span>
+            <a href="/staff/logout" class="text-sm font-medium hover:underline" style="color: var(--accent);">Logout</a>
+            <div class="theme-toggle">
+                <input type="checkbox" id="theme-switch" />
+                <label for="theme-switch" class="switch">
+                    <span class="icon sun">☀️</span>
+                    <span class="icon moon">🌙</span>
+                    <span class="thumb"></span>
+                </label>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <section class="py-8 px-6 text-center">
+        <h1 class="text-4xl font-bold mb-2">Staff Dashboard</h1>
+        <p class="text-secondary">Live overview of bookings and hotel performance</p>
+    </section>
+
+    <!-- KPI Cards -->
+    <main class="max-w-7xl mx-auto px-6 pb-12">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            <div class="kpi-card rounded-2xl p-5 text-center">
+                <p class="text-secondary text-sm">Total Revenue</p>
+                <p class="text-2xl font-bold mt-1" style="color: var(--accent);">₹{{ total_revenue }}</p>
+            </div>
+            <div class="kpi-card rounded-2xl p-5 text-center">
+                <p class="text-secondary text-sm">Active Check-ins</p>
+                <p class="text-2xl font-bold mt-1" style="color: var(--accent);">{{ active_checkins }}</p>
+            </div>
+            <div class="kpi-card rounded-2xl p-5 text-center">
+                <p class="text-secondary text-sm">Available Rooms</p>
+                <p class="text-2xl font-bold mt-1" style="color: var(--accent);">{{ available_rooms }} / 54</p>
+            </div>
+            <div class="kpi-card rounded-2xl p-5 text-center">
+                <p class="text-secondary text-sm">Occupancy Rate</p>
+                <p class="text-2xl font-bold mt-1" style="color: var(--accent);">{{ occupancy_rate }}%</p>
+            </div>
+        </div>
+
+        <!-- Bookings Table -->
+        <div class="table-container rounded-2xl overflow-hidden">
+            {% if bookings %}
+            <div class="overflow-x-auto">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Hotel</th>
+                            <th>Room</th>
+                            <th>Guest</th>
+                            <th>Check-in</th>
+                            <th>Check-out</th>
+                            <th>Total</th>
+                            <th>Payment</th>
+                            <th>TXN ID</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in bookings %}
+                        <tr>
+                            <td>#{{ b.id }}</td>
+                            <td>{{ b.hotel_name }}</td>
+                            <td>{{ b.room_type }}</td>
+                            <td>{{ b.guest_name }}<br><small class="text-secondary">{{ b.guest_phone }}</small></td>
+                            <td>{{ b.check_in }}</td>
+                            <td>{{ b.check_out }}</td>
+                            <td>₹{{ b.total_bill }}</td>
+                            <td>{{ b.payment_method or '-' }}</td>
+                            <td><small>{{ b.transaction_id or '-' }}</small></td>
+                            <td>
+                                <span class="px-2 py-1 rounded text-xs font-medium" 
+                                      style="background: {% if b.status == 'Checked Out' %}var(--text-secondary){% elif b.status == 'Cancelled' %}#94a3b8{% else %}var(--accent){% endif %}; 
+                                             color: {% if b.status == 'Checked Out' or b.status == 'Cancelled' %}var(--surface){% else %}var(--btn-text){% endif %};">
+                                    {{ b.status }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if b.status == 'Confirmed' %}
+                                <form action="/checkout/{{ b.id }}" method="POST" class="inline">
+                                    <button type="submit" class="btn-primary px-3 py-1 rounded text-sm">Checkout</button>
+                                </form>
+                                {% else %}
+                                <span class="text-secondary text-sm">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-center py-16 text-secondary">No bookings yet.</p>
+            {% endif %}
+        </div>
+    </main>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="fixed bottom-4 right-4 z-50">
+                {% for category, message in messages %}
+                    <div class="px-4 py-3 rounded-lg mb-2" style="background: var(--surface); border: 1px solid var(--border);">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+            const toggle = document.getElementById('theme-switch');
+            if (toggle) {
+                toggle.checked = theme === 'dark';
+                toggle.addEventListener('change', () => {
+                    const newTheme = toggle.checked ? 'dark' : 'light';
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

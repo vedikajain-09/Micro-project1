@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Management System — Gwalior Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root, [data-theme="light"] {
+            --bg: #F5F9FF;
+            --surface: #FFFFFF;
+            --border: #DBEAFE;
+            --shadow: 0 4px 12px rgba(2, 132, 199, 0.06);
+            --hero-bg: #E0F2FE;
+            --hero-heading: #0C4A6E;
+            --text-secondary: #475569;
+            --accent: #0284C7;
+            --accent-hover: #0369A1;
+            --btn-text: #FFFFFF;
+            --card-title: #0F172A;
+            --switch-track: #BAE6FD;
+            --switch-thumb: #0284C7;
+            --text-primary: #0F172A;
+        }
+        [data-theme="dark"] {
+            --bg: #071110;
+            --surface: #0F1F1D;
+            --border: #1A3330;
+            --shadow: 0 4px 12px rgba(45, 212, 191, 0.08);
+            --hero-bg: #112A27;
+            --hero-heading: #F0FDFA;
+            --text-secondary: #99F6E4;
+            --accent: #2DD4BF;
+            --accent-hover: #5EEAD4;
+            --btn-text: #042F2E;
+            --card-title: #F0FDFA;
+            --switch-track: #1A3330;
+            --switch-thumb: #2DD4BF;
+            --text-primary: #F0FDFA;
+        }
+        * { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
+        body { background: var(--bg); color: var(--text-primary); }
+        .navbar, .card, .modal-content { background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); }
+        .hero { background: var(--hero-bg); }
+        .hero h1 { color: var(--hero-heading); }
+        .hero p, .text-secondary { color: var(--text-secondary); }
+        .btn-primary { background: var(--accent); color: var(--btn-text); }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .card-title { color: var(--card-title); }
+        /* Theme Toggle */
+        .theme-toggle { position: relative; display: inline-block; }
+        .theme-toggle input { opacity: 0; width: 0; height: 0; }
+        .switch {
+            display: flex; align-items: center; justify-content: space-between;
+            width: 64px; height: 32px; background: var(--switch-track);
+            border-radius: 9999px; padding: 4px; cursor: pointer; position: relative;
+            border: 1px solid var(--border);
+        }
+        .switch .icon { font-size: 14px; z-index: 1; user-select: none; }
+        .switch .thumb {
+            position: absolute; width: 24px; height: 24px; background: var(--switch-thumb);
+            border-radius: 50%; left: 4px; transition: transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input:checked + .switch .thumb { transform: translateX(32px); }
+        input:checked + .switch .sun { opacity: 0.4; }
+        input:not(:checked) + .switch .moon { opacity: 0.4; }
+        .hotel-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .hotel-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(2, 132, 199, 0.12); }
+        [data-theme="dark"] .hotel-card:hover { box-shadow: 0 8px 24px rgba(45, 212, 191, 0.15); }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navbar -->
+    <nav class="navbar sticky top-0 z-50 px-6 py-4 flex justify-between items-center">
+        <div class="text-xl font-bold" style="color: var(--hero-heading);">Gwalior Hotels</div>
+        <div class="flex items-center gap-6">
+            <a href="/my-booking" class="text-sm font-medium hover:underline" style="color: var(--accent);">My Booking</a>
+            <a href="/staff" class="text-sm font-medium hover:underline" style="color: var(--accent);">Staff Portal</a>
+            <div class="theme-toggle">
+                <input type="checkbox" id="theme-switch" />
+                <label for="theme-switch" class="switch">
+                    <span class="icon sun">☀️</span>
+                    <span class="icon moon">🌙</span>
+                    <span class="thumb"></span>
+                </label>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero py-20 px-6 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">Discover Gwalior's Finest Stays</h1>
+        <p class="text-lg max-w-2xl mx-auto">Book from 9 unique hotels, each offering 6 distinct room types. Experience modern hospitality with elegant comfort.</p>
+    </section>
+
+    <!-- Hotels Grid -->
+    <main class="max-w-7xl mx-auto px-6 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for hotel in hotels %}
+            <a href="/hotel/{{ hotel.id }}" class="card hotel-card rounded-2xl overflow-hidden block">
+                <img src="{{ hotel.image_url }}" alt="{{ hotel.name }}" class="w-full h-48 object-cover" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80';">
+                <div class="p-6">
+                    <h2 class="card-title text-xl font-semibold mb-1">{{ hotel.name }}</h2>
+                    <p class="text-secondary text-sm mb-3">{{ hotel.location }}</p>
+                    <p class="font-medium" style="color: var(--accent);">Starting from ₹{{ hotel.starting_price }} / night</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </main>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="fixed bottom-4 right-4 z-50">
+                {% for category, message in messages %}
+                    <div class="px-4 py-3 rounded-lg mb-2" style="background: var(--surface); border: 1px solid var(--border);">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+            const toggle = document.getElementById('theme-switch');
+            if (toggle) {
+                toggle.checked = theme === 'dark';
+                toggle.addEventListener('change', () => {
+                    const newTheme = toggle.checked ? 'dark' : 'light';
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment — Gwalior Hotels</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root, [data-theme="light"] {
+            --bg: #F5F9FF;
+            --surface: #FFFFFF;
+            --border: #DBEAFE;
+            --shadow: 0 4px 12px rgba(2, 132, 199, 0.06);
+            --hero-bg: #E0F2FE;
+            --hero-heading: #0C4A6E;
+            --text-secondary: #475569;
+            --accent: #0284C7;
+            --accent-hover: #0369A1;
+            --btn-text: #FFFFFF;
+            --card-title: #0F172A;
+            --switch-track: #BAE6FD;
+            --switch-thumb: #0284C7;
+            --text-primary: #0F172A;
+        }
+        [data-theme="dark"] {
+            --bg: #071110;
+            --surface: #0F1F1D;
+            --border: #1A3330;
+            --shadow: 0 4px 12px rgba(45, 212, 191, 0.08);
+            --hero-bg: #112A27;
+            --hero-heading: #F0FDFA;
+            --text-secondary: #99F6E4;
+            --accent: #2DD4BF;
+            --accent-hover: #5EEAD4;
+            --btn-text: #042F2E;
+            --card-title: #F0FDFA;
+            --switch-track: #1A3330;
+            --switch-thumb: #2DD4BF;
+            --text-primary: #F0FDFA;
+        }
+        * { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
+        body { background: var(--bg); color: var(--text-primary); }
+        .navbar, .card { background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); }
+        .hero { background: var(--hero-bg); }
+        .hero h1 { color: var(--hero-heading); }
+        .text-secondary { color: var(--text-secondary); }
+        .btn-primary { background: var(--accent); color: var(--btn-text); }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .card-title { color: var(--card-title); }
+        /* Theme Toggle */
+        .theme-toggle { position: relative; display: inline-block; }
+        .theme-toggle input { opacity: 0; width: 0; height: 0; }
+        .switch {
+            display: flex; align-items: center; justify-content: space-between;
+            width: 64px; height: 32px; background: var(--switch-track);
+            border-radius: 9999px; padding: 4px; cursor: pointer; position: relative;
+            border: 1px solid var(--border);
+        }
+        .switch .icon { font-size: 14px; z-index: 1; user-select: none; }
+        .switch .thumb {
+            position: absolute; width: 24px; height: 24px; background: var(--switch-thumb);
+            border-radius: 50%; left: 4px; transition: transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input:checked + .switch .thumb { transform: translateX(32px); }
+        input:checked + .switch .sun { opacity: 0.4; }
+        input:not(:checked) + .switch .moon { opacity: 0.4; }
+        .tab-btn { padding: 10px 20px; border-radius: 8px; font-weight: 500; cursor: pointer; }
+        .tab-btn.active { background: var(--accent); color: var(--btn-text); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        input, select { background: var(--surface); border: 1px solid var(--border); color: var(--text-primary); }
+
+        /* iPhone-style slide to confirm */
+        .slide-container {
+            position: relative;
+            width: 100%;
+            height: 64px;
+            background: var(--switch-track);
+            border-radius: 9999px;
+            overflow: hidden;
+            margin-top: 24px;
+            user-select: none;
+            border: 1px solid var(--border);
+        }
+        .slide-track {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-weight: 600;
+            pointer-events: none;
+        }
+        .slide-thumb {
+            position: absolute;
+            left: 4px;
+            top: 4px;
+            width: 56px;
+            height: 56px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            cursor: grab;
+            z-index: 2;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: transform 0.1s ease;
+        }
+        .slide-thumb:active { cursor: grabbing; }
+        .slide-thumb.confirmed {
+            background: #10b981;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navbar -->
+    <nav class="navbar sticky top-0 z-50 px-6 py-4 flex justify-between items-center">
+        <a href="/" class="text-xl font-bold" style="color: var(--hero-heading);">← Gwalior Hotels</a>
+        <div class="flex items-center gap-6">
+            <span class="text-sm font-medium" style="color: var(--accent);">Secure Payment</span>
+            <div class="theme-toggle">
+                <input type="checkbox" id="theme-switch" />
+                <label for="theme-switch" class="switch">
+                    <span class="icon sun">☀️</span>
+                    <span class="icon moon">🌙</span>
+                    <span class="thumb"></span>
+                </label>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-2xl mx-auto px-6 py-12">
+        <h1 class="text-3xl font-bold mb-2 text-center" style="color: var(--hero-heading);">Complete Your Payment</h1>
+        <p class="text-secondary text-center mb-8">Enter payment details and slide to confirm</p>
+
+        <!-- Bill Breakdown -->
+        <div class="card rounded-2xl p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4" style="color: var(--card-title);">Booking Summary</h2>
+            <div class="space-y-2 text-sm">
+                <div class="flex justify-between"><span>Room</span><span>{{ booking.room_type }}</span></div>
+                <div class="flex justify-between"><span>Check-in</span><span>{{ booking.check_in }}</span></div>
+                <div class="flex justify-between"><span>Check-out</span><span>{{ booking.check_out }}</span></div>
+                <div class="flex justify-between"><span>Nights</span><span>{{ booking.nights }}</span></div>
+                <div class="flex justify-between"><span>Price / night</span><span>₹{{ booking.price_per_night }}</span></div>
+                <hr class="my-2" style="border-color: var(--border);">
+                <div class="flex justify-between"><span>Base Amount</span><span>₹{{ booking.base_amount }}</span></div>
+                <div class="flex justify-between"><span>GST ({{ booking.gst_percent }}%)</span><span>₹{{ booking.gst_amount }}</span></div>
+                <div class="flex justify-between text-lg font-bold mt-2" style="color: var(--accent);">
+                    <span>Grand Total</span><span>₹{{ booking.total_bill }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="card rounded-2xl p-6">
+            <h2 class="text-xl font-semibold mb-4" style="color: var(--card-title);">Select Payment Method</h2>
+
+            <div class="flex gap-2 mb-6 flex-wrap">
+                <button type="button" class="tab-btn active" data-tab="upi">UPI</button>
+                <button type="button" class="tab-btn" data-tab="card">Debit/Credit Card</button>
+                <button type="button" class="tab-btn" data-tab="netbanking">Net Banking</button>
+            </div>
+
+            <form action="/process_payment" method="POST" id="paymentForm">
+                <input type="hidden" name="payment_method" id="paymentMethod" value="UPI">
+                <input type="hidden" name="action" value="success">
+
+                <!-- UPI -->
+                <div id="upi" class="tab-content active mb-6">
+                    <label class="block text-sm mb-1">UPI ID</label>
+                    <input type="text" id="upiId" placeholder="Enter UPI ID" class="w-full px-3 py-2 rounded-lg">
+                </div>
+
+                <!-- Card -->
+                <div id="card" class="tab-content mb-6">
+                    <div class="mb-3">
+                        <label class="block text-sm mb-1">Card Number</label>
+                        <input type="text" id="cardNumber" placeholder="Enter card number" maxlength="19" class="w-full px-3 py-2 rounded-lg">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm mb-1">Expiry (MM/YY)</label>
+                            <input type="text" id="cardExpiry" placeholder="MM/YY" maxlength="5" class="w-full px-3 py-2 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm mb-1">CVV</label>
+                            <input type="text" id="cardCvv" placeholder="CVV" maxlength="3" class="w-full px-3 py-2 rounded-lg">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Net Banking -->
+                <div id="netbanking" class="tab-content mb-6">
+                    <label class="block text-sm mb-1">Select Bank</label>
+                    <select id="bankSelect" class="w-full px-3 py-2 rounded-lg">
+                        <option value="">-- Choose Bank --</option>
+                        <option>State Bank of India</option>
+                        <option>HDFC Bank</option>
+                        <option>ICICI Bank</option>
+                        <option>Axis Bank</option>
+                        <option>Punjab National Bank</option>
+                    </select>
+                </div>
+
+                <!-- Slide to Confirm -->
+                <div class="slide-container" id="slideContainer">
+                    <div class="slide-track" id="slideTrack">Slide to Confirm Payment →</div>
+                    <div class="slide-thumb" id="slideThumb">→</div>
+                </div>
+                <p class="text-xs text-center text-secondary mt-3">Slide the button all the way to the right to confirm</p>
+            </form>
+        </div>
+    </main>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="fixed bottom-4 right-4 z-50">
+                {% for category, message in messages %}
+                    <div class="px-4 py-3 rounded-lg mb-2" style="background: var(--surface); border: 1px solid var(--border);">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <script>
+        // Theme
+        document.addEventListener('DOMContentLoaded', () => {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+            const toggle = document.getElementById('theme-switch');
+            if (toggle) {
+                toggle.checked = theme === 'dark';
+                toggle.addEventListener('change', () => {
+                    const newTheme = toggle.checked ? 'dark' : 'light';
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                });
+            }
+
+            // Tabs
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const methodInput = document.getElementById('paymentMethod');
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.getElementById(btn.dataset.tab).classList.add('active');
+                    methodInput.value = btn.dataset.tab === 'upi' ? 'UPI' : btn.dataset.tab === 'card' ? 'Card' : 'Net Banking';
+                    resetSlide();
+                });
+            });
+
+            // Slide to confirm
+            const container = document.getElementById('slideContainer');
+            const thumb = document.getElementById('slideThumb');
+            const track = document.getElementById('slideTrack');
+            let isDragging = false;
+            let startX = 0;
+            let currentX = 0;
+            const maxX = container.offsetWidth - thumb.offsetWidth - 8;
+
+            function resetSlide() {
+                thumb.style.transform = 'translateX(0px)';
+                thumb.classList.remove('confirmed');
+                thumb.textContent = '→';
+                track.textContent = 'Slide to Confirm Payment →';
+                currentX = 0;
+            }
+
+            function validatePayment() {
+                const method = methodInput.value;
+                if (method === 'UPI') {
+                    const upi = document.getElementById('upiId').value.trim();
+                    if (!upi) return { valid: false, msg: 'Please enter UPI ID' };
+                    if (!upi.includes('@') || upi.length < 5) return { valid: false, msg: 'Invalid UPI ID (must contain @)' };
+                    return { valid: true };
+                }
+                if (method === 'Card') {
+                    const num = document.getElementById('cardNumber').value.replace(/\s/g, '');
+                    const exp = document.getElementById('cardExpiry').value.trim();
+                    const cvv = document.getElementById('cardCvv').value.trim();
+                    if (!num || !exp || !cvv) return { valid: false, msg: 'Please enter all card details' };
+                    if (!/^\d{16}$/.test(num)) return { valid: false, msg: 'Invalid card number (16 digits required)' };
+                    if (!/^\d{2}\/\d{2}$/.test(exp)) return { valid: false, msg: 'Invalid expiry (use MM/YY)' };
+                    if (!/^\d{3}$/.test(cvv)) return { valid: false, msg: 'Invalid CVV (3 digits)' };
+                    return { valid: true };
+                }
+                if (method === 'Net Banking') {
+                    const bank = document.getElementById('bankSelect').value;
+                    if (!bank) return { valid: false, msg: 'Please select a bank' };
+                    return { valid: true };
+                }
+                return { valid: false, msg: 'Please select a payment method' };
+            }
+
+            thumb.addEventListener('mousedown', startDrag);
+            thumb.addEventListener('touchstart', startDrag, { passive: false });
+
+            function startDrag(e) {
+                isDragging = true;
+                startX = (e.touches ? e.touches[0].clientX : e.clientX) - currentX;
+                document.addEventListener('mousemove', onDrag);
+                document.addEventListener('touchmove', onDrag, { passive: false });
+                document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchend', endDrag);
+            }
+
+            function onDrag(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                let x = clientX - startX;
+                x = Math.max(0, Math.min(x, maxX));
+                currentX = x;
+                thumb.style.transform = `translateX(${x}px)`;
+            }
+
+            function endDrag() {
+                if (!isDragging) return;
+                isDragging = false;
+                document.removeEventListener('mousemove', onDrag);
+                document.removeEventListener('touchmove', onDrag);
+                document.removeEventListener('mouseup', endDrag);
+                document.removeEventListener('touchend', endDrag);
+
+                if (currentX > maxX * 0.85) {
+                    // Validate before confirming
+                    const result = validatePayment();
+                    if (!result.valid) {
+                        alert(result.msg);
+                        resetSlide();
+                        return;
+                    }
+                    // Success visual
+                    thumb.classList.add('confirmed');
+                    thumb.textContent = '✓';
+                    track.textContent = 'Payment Confirmed!';
+                    setTimeout(() => {
+                        document.getElementById('paymentForm').submit();
+                    }, 400);
+                } else {
+                    resetSlide();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

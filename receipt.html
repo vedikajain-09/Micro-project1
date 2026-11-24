@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Receipt — Gwalior Hotels</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root, [data-theme="light"] {
+            --bg: #F5F9FF;
+            --surface: #FFFFFF;
+            --border: #DBEAFE;
+            --shadow: 0 4px 12px rgba(2, 132, 199, 0.06);
+            --hero-bg: #E0F2FE;
+            --hero-heading: #0C4A6E;
+            --text-secondary: #475569;
+            --accent: #0284C7;
+            --accent-hover: #0369A1;
+            --btn-text: #FFFFFF;
+            --card-title: #0F172A;
+            --switch-track: #BAE6FD;
+            --switch-thumb: #0284C7;
+            --text-primary: #0F172A;
+        }
+        [data-theme="dark"] {
+            --bg: #071110;
+            --surface: #0F1F1D;
+            --border: #1A3330;
+            --shadow: 0 4px 12px rgba(45, 212, 191, 0.08);
+            --hero-bg: #112A27;
+            --hero-heading: #F0FDFA;
+            --text-secondary: #99F6E4;
+            --accent: #2DD4BF;
+            --accent-hover: #5EEAD4;
+            --btn-text: #042F2E;
+            --card-title: #F0FDFA;
+            --switch-track: #1A3330;
+            --switch-thumb: #2DD4BF;
+            --text-primary: #F0FDFA;
+        }
+        * { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
+        body { background: var(--bg); color: var(--text-primary); }
+        .navbar, .card { background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); }
+        .hero { background: var(--hero-bg); }
+        .hero h1 { color: var(--hero-heading); }
+        .text-secondary { color: var(--text-secondary); }
+        .btn-primary { background: var(--accent); color: var(--btn-text); }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .card-title { color: var(--card-title); }
+        /* Theme Toggle */
+        .theme-toggle { position: relative; display: inline-block; }
+        .theme-toggle input { opacity: 0; width: 0; height: 0; }
+        .switch {
+            display: flex; align-items: center; justify-content: space-between;
+            width: 64px; height: 32px; background: var(--switch-track);
+            border-radius: 9999px; padding: 4px; cursor: pointer; position: relative;
+            border: 1px solid var(--border);
+        }
+        .switch .icon { font-size: 14px; z-index: 1; user-select: none; }
+        .switch .thumb {
+            position: absolute; width: 24px; height: 24px; background: var(--switch-thumb);
+            border-radius: 50%; left: 4px; transition: transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input:checked + .switch .thumb { transform: translateX(32px); }
+        input:checked + .switch .sun { opacity: 0.4; }
+        input:not(:checked) + .switch .moon { opacity: 0.4; }
+        .success-icon {
+            width: 72px; height: 72px; border-radius: 50%;
+            background: #10b981; color: white; font-size: 36px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 16px;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navbar -->
+    <nav class="navbar sticky top-0 z-50 px-6 py-4 flex justify-between items-center">
+        <a href="/" class="text-xl font-bold" style="color: var(--hero-heading);">← Gwalior Hotels</a>
+        <div class="flex items-center gap-6">
+            <a href="/my-booking" class="text-sm font-medium hover:underline" style="color: var(--accent);">My Booking</a>
+            <div class="theme-toggle">
+                <input type="checkbox" id="theme-switch" />
+                <label for="theme-switch" class="switch">
+                    <span class="icon sun">☀️</span>
+                    <span class="icon moon">🌙</span>
+                    <span class="thumb"></span>
+                </label>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-2xl mx-auto px-6 py-12">
+        <div class="card rounded-2xl p-8 text-center">
+            <div class="success-icon">✓</div>
+            <h1 class="text-3xl font-bold mb-2" style="color: var(--hero-heading);">Payment Successful!</h1>
+            <p class="text-secondary mb-8">Your booking has been confirmed. Please save this receipt.</p>
+
+            <div class="text-left space-y-3 text-sm bg-opacity-50 p-5 rounded-xl" style="background: var(--hero-bg);">
+                <div class="flex justify-between"><span class="text-secondary">Booking ID</span><span class="font-bold">#{{ booking.id }}</span></div>
+                <div class="flex justify-between"><span class="text-secondary">Transaction ID</span><span class="font-mono">{{ booking.transaction_id }}</span></div>
+                <div class="flex justify-between"><span class="text-secondary">Hotel</span><span>{{ booking.hotel_name }}</span></div>
+                <div class="flex justify-between"><span class="text-secondary">Room Type</span><span>{{ booking.room_type }}</span></div>
+                <div class="flex justify-between"><span class="text-secondary">Guest Name</span><span>{{ booking.guest_name }}</span></div>
+                <div class="flex justify-between"><span class="text-secondary">Phone</span><span>{{ booking.guest_phone }}</span></div>
+                <div class="flex justify-between"><span class="text-secondary">Guests</span><span>{{ booking.num_guests }}</span></div>
+                <div class="flex justify-between"><span class="text-secondary">Check-in</span><span>{{ booking.check_in }}</span></div>
+                <div class="flex justify-between"><span class="text-secondary">Check-out</span><span>{{ booking.check_out }}</span></div>
+                <div class="flex justify-between"><span class="text-secondary">Payment Method</span><span>{{ booking.payment_method }}</span></div>
+                <hr style="border-color: var(--border);">
+                <div class="flex justify-between"><span>Base Amount</span><span>₹{{ booking.base_amount }}</span></div>
+                <div class="flex justify-between"><span>GST ({{ booking.gst_percent }}%)</span><span>₹{{ booking.gst_amount }}</span></div>
+                <div class="flex justify-between text-lg font-bold" style="color: var(--accent);">
+                    <span>Total Paid</span><span>₹{{ booking.total_bill }}</span>
+                </div>
+            </div>
+
+            <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+                <a href="/" class="btn-primary px-6 py-3 rounded-lg font-semibold">Back to Hotels</a>
+                <a href="/my-booking" class="btn-primary px-6 py-3 rounded-lg font-semibold" style="background: var(--accent-hover);">Track Booking</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+            const toggle = document.getElementById('theme-switch');
+            if (toggle) {
+                toggle.checked = theme === 'dark';
+                toggle.addEventListener('change', () => {
+                    const newTheme = toggle.checked ? 'dark' : 'light';
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
